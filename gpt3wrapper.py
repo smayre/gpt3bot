@@ -10,7 +10,9 @@ MODEL = "text-davinci-002"
 TEMPERATURE = 0.7
 
 
-def get_gpt3_completion(prompt, stop_token, model=MODEL, temperature=TEMPERATURE):
+def get_gpt3_completion(
+    prompt, stop_token, model=MODEL, temperature=TEMPERATURE
+):
     response = openai.Completion.create(
         model=model,
         prompt=prompt,
@@ -23,8 +25,6 @@ def get_gpt3_completion(prompt, stop_token, model=MODEL, temperature=TEMPERATURE
     )
     choice = random.choice(response["choices"])
     return choice["text"]
-
-
 
 
 if __name__ == "__main__":
