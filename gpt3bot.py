@@ -8,6 +8,7 @@ from datetime import datetime as dt
 
 BOT_USERID = os.environ["SLACK_BOT_ID"]
 STOP_TOKEN = "<EOT>"
+MESSAGE_LIMIT = 15
 
 
 app = App(
@@ -19,7 +20,9 @@ app = App(
 @app.event("app_mention")
 def reply_to_mention(logger, client, event, say):
     try:
-        resp = client.conversations_history(channel=event["channel"], limit=75)
+        resp = client.conversations_history(
+            channel=event["channel"], limit=MESSAGE_LIMIT
+        )
         reply = generate_reply(resp["messages"], bot_userid=BOT_USERID)
         say(reply)
     except Exception as e:
