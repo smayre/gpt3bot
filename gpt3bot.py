@@ -35,6 +35,7 @@ def reply_to_mention(logger, client, event, say):
 @app.command("/purge-history")
 def set_cutoff(ack, say):
     ack()
+    say("I have been robotomised")
     global CUTOFF
     CUTOFF = dt.now().timestamp()
 
