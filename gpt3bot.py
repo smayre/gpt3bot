@@ -37,7 +37,6 @@ def set_cutoff(ack, say):
     ack()
     global CUTOFF
     CUTOFF = dt.now().timestamp()
-    say("Purged message history")
 
 
 def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
