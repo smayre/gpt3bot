@@ -8,7 +8,7 @@ from datetime import datetime as dt
 
 BOT_USERID = os.environ["SLACK_BOT_ID"]
 STOP_TOKEN = "<EOT>"
-MESSAGE_LIMIT = 15
+MESSAGE_LIMIT = 50
 
 
 app = App(
