@@ -10,6 +10,8 @@ BOT_USERID = os.environ["SLACK_BOT_ID"]
 STOP_TOKEN = "<EOT>"
 MESSAGE_LIMIT = 50
 
+CUTOFF = dt.now().timestamp()
+
 
 app = App(
     token=os.environ["SLACK_BOT_TOKEN"],
@@ -21,13 +23,21 @@ app = App(
 def reply_to_mention(logger, client, event, say):
     try:
         resp = client.conversations_history(
-            channel=event["channel"], limit=MESSAGE_LIMIT
+            channel=event["channel"], limit=MESSAGE_LIMIT, oldest=CUTOFF
         )
         reply = generate_reply(resp["messages"], bot_userid=BOT_USERID)
         say(reply)
     except Exception as e:
         logger.error(e)
         raise
+
+
+@app.command("/purge-history")
+def set_cutoff(ack, say):
+    ack()
+    global CUTOFF
+    CUTOFF = dt.now().timestamp()
+    say("Purged message history")
 
 
 def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
