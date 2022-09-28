@@ -56,7 +56,7 @@ def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
     messages.sort(key=lambda m: m[0])
     norepeats = drop_repeated(messages, bot_userid)
     chatlog = [
-        f"{ts.isoformat()} {userid}: {text}{stop_token}"
+        f"{ts.strftime('%H:%M:%S')} {userid}: {text}{stop_token}"
         for ts, userid, text in norepeats
     ]
     now = dt.now().isoformat()
