@@ -57,7 +57,7 @@ def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
         f"{ts.strftime('%H:%M:%S')} {userid}: {text}{stop_token}"
         for ts, userid, text in messages
     ]
-    now = dt.now().isoformat()
+    now = dt.now().strftime("%H:%M:%S")
     chatlog.append(f"{now} {bot_userid}:")
     prompt = "\n".join(chatlog)
     gpt3_reply = get_gpt3_completion(prompt, stop_token)
