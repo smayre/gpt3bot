@@ -30,6 +30,17 @@ def reply_to_mention(logger, client, event, say):
         raise
 
 
+def drop_repeated(messages, bot_userid):
+    seen = set()
+    res = []
+    for msg in messages:
+        _, userid, text = msg
+        if userid != bot_userid or text not in seen:
+            res.append(msg)
+        seen.add(text)
+    return res
+
+
 def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
     """Create a prompt for GPT-3 by converting a Slack conversation
     history into a chat log. Append the STOP_TOKEN to the end of each
@@ -46,9 +57,10 @@ def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
         )
     ]
     messages.sort(key=lambda m: m[0])
+    norepeats = drop_repeated(messages, bot_userid)
     chatlog = [
         f"{ts.isoformat()} {userid}: {text}{stop_token}"
-        for ts, userid, text in messages
+        for ts, userid, text in norepeats
     ]
     now = dt.now().isoformat()
     chatlog.append(f"{now} {bot_userid}:")
