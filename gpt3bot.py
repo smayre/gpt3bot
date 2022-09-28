@@ -51,10 +51,7 @@ def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
     messages = [
         (dt.fromtimestamp(float(msg["ts"])), msg["user"], msg["text"])
         for msg in message_history
-        if (
-            msg["text"].strip() != f"<@{bot_userid}>"
-            and msg["user"] != bot_userid
-        )
+        if msg["text"].strip() != f"<@{bot_userid}>"
     ]
     messages.sort(key=lambda m: m[0])
     norepeats = drop_repeated(messages, bot_userid)
