@@ -4,6 +4,8 @@ import os
 from slack_bolt import App
 from gpt3wrapper import get_gpt3_completion
 from datetime import datetime as dt
+from functools import lru_cache
+import re
 
 
 BOT_USERID = os.environ["SLACK_BOT_ID"]
@@ -21,11 +23,16 @@ app = App(
 
 @app.event("app_mention")
 def reply_to_mention(logger, client, event, say):
+    @lru_cache()
+    def get_username(userid):
+        resp = client.users_info(user=userid)
+        return resp["user"]["name"]
+
     try:
         resp = client.conversations_history(
             channel=event["channel"], limit=MESSAGE_LIMIT, oldest=CUTOFF
         )
-        reply = generate_reply(resp["messages"], bot_userid=BOT_USERID)
+        reply = generate_reply(resp["messages"], BOT_USERID, get_username)
         say(reply)
     except Exception as e:
         logger.error(e)
@@ -40,7 +47,9 @@ def set_cutoff(ack, say):
     CUTOFF = dt.now().timestamp()
 
 
-def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
+def generate_reply(
+    message_history, bot_userid, get_username_func, stop_token=STOP_TOKEN
+):
     """Create a prompt for GPT-3 by converting a Slack conversation
     history into a chat log. Append the STOP_TOKEN to the end of each
     message so that (hopefully) GPT-3 will do the same, which we then
@@ -48,7 +57,11 @@ def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
     conversation with itself."""
 
     messages = [
-        (dt.fromtimestamp(float(msg["ts"])), msg["user"], msg["text"])
+        (
+            dt.fromtimestamp(float(msg["ts"])),
+            get_username_func(msg["user"]),
+            convert_mentions(msg["text"], get_username_func),
+        )
         for msg in message_history
         if msg["text"].strip() != f"<@{bot_userid}>"
     ]
@@ -58,10 +71,23 @@ def generate_reply(message_history, bot_userid, stop_token=STOP_TOKEN):
         for ts, userid, text in messages
     ]
     now = dt.now().strftime("%H:%M:%S")
-    chatlog.append(f"{now} {bot_userid}:")
+    chatlog.append(f"{now} {get_username_func(bot_userid)}:")
     prompt = "\n".join(chatlog)
     gpt3_reply = get_gpt3_completion(prompt, stop_token)
     return gpt3_reply
+
+
+def convert_mentions(text, get_username_func):
+    regex = re.compile(r"<@(U[0-9A-Z]+)>")
+    res = text
+    while True:
+        match = regex.search(res)
+        if match:
+            username = get_username_func(match.group(1))
+            res = res[: match.start()] + f"@{username}" + res[match.end() :]
+        else:
+            break
+    return res
 
 
 if __name__ == "__main__":
