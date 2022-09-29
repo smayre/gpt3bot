@@ -8,7 +8,6 @@ from functools import lru_cache
 import re
 
 
-BOT_USERID = os.environ["SLACK_BOT_ID"]
 STOP_TOKEN = "<EOT>"
 MESSAGE_LIMIT = 50
 
@@ -29,10 +28,12 @@ def reply_to_mention(logger, client, event, say):
         return resp["user"]["name"]
 
     try:
+        bot_username = client.users_identity()["user"]["name"]
+
         resp = client.conversations_history(
             channel=event["channel"], limit=MESSAGE_LIMIT, oldest=CUTOFF
         )
-        reply = generate_reply(resp["messages"], BOT_USERID, get_username)
+        reply = generate_reply(resp["messages"], bot_username, get_username)
         say(reply)
     except Exception as e:
         logger.error(e)
@@ -48,7 +49,7 @@ def set_cutoff(ack, say):
 
 
 def generate_reply(
-    message_history, bot_userid, get_username_func, stop_token=STOP_TOKEN
+    message_history, bot_username, get_username_func, stop_token=STOP_TOKEN
 ):
     """Create a prompt for GPT-3 by converting a Slack conversation
     history into a chat log. Append the STOP_TOKEN to the end of each
@@ -63,7 +64,6 @@ def generate_reply(
             convert_mentions(msg["text"], get_username_func),
         )
         for msg in message_history
-        if msg["text"].strip() != f"<@{bot_userid}>"
     ]
     messages.sort(key=lambda m: m[0])
     chatlog = [
@@ -71,7 +71,7 @@ def generate_reply(
         for ts, userid, text in messages
     ]
     now = dt.now().strftime("%H:%M:%S")
-    chatlog.append(f"{now} {get_username_func(bot_userid)}:")
+    chatlog.append(f"{now} {bot_username}:")
     prompt = "\n".join(chatlog)
     gpt3_reply = get_gpt3_completion(prompt, stop_token)
     return gpt3_reply
