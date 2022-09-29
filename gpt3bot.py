@@ -9,7 +9,7 @@ from datetime import datetime as dt
 STOP_TOKEN = "<EOT>"
 MESSAGE_LIMIT = 50
 
-CUTOFF = dt.now().timestamp()
+CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
 
 
 app = App(
