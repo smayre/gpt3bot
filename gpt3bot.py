@@ -8,6 +8,7 @@ from datetime import datetime as dt
 
 STOP_TOKEN = "<EOT>"
 MESSAGE_LIMIT = 50
+BOT_USERNAME = "gpt3bot"
 
 CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
 
@@ -22,7 +23,7 @@ app = App(
 def reply_to_mention(logger, client, event, say):
     try:
         user_map = get_user_map(client)
-        bot_username = client.users_identity()["user"]["name"]
+        bot_username = BOT_USERNAME
 
         resp = client.conversations_history(
             channel=event["channel"], limit=MESSAGE_LIMIT, oldest=CUTOFF
