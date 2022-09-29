@@ -34,7 +34,7 @@ def reply_to_mention(logger, client, event, say):
         raise
 
 
-@app.command("/purge-history")
+@app.command("/gpt3-robotomy")
 def set_cutoff(ack, say):
     ack()
     say("I have been robotomised")
