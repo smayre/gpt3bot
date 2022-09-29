@@ -42,6 +42,13 @@ def set_cutoff(ack, say):
     CUTOFF = dt.now().timestamp()
 
 
+@app.command("/gpt3-say")
+def say_something(ack, logger, client, command, say):
+    ack()
+    event = dict(channel=command["channel_id"])
+    reply_to_mention(logger, client, event, say)
+
+
 def generate_reply(
     message_history, bot_username, user_map, stop_token=STOP_TOKEN
 ):
