@@ -36,7 +36,8 @@ def reply_to_mention(logger, client, event, say):
 
 
 @app.command("/gpt3-robotomy")
-def set_cutoff(ack, say):
+def set_cutoff(ack, command, say):
+    print(f"{command['command']} {command['user_name']}")
     ack()
     say("I have been robotomised")
     global CUTOFF
@@ -45,6 +46,7 @@ def set_cutoff(ack, say):
 
 @app.command("/gpt3-say")
 def say_something(ack, logger, client, command, say):
+    print(f"{command['command']} {command['user_name']}")
     ack()
     event = dict(channel=command["channel_id"])
     reply_to_mention(logger, client, event, say)
