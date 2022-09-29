@@ -12,7 +12,7 @@ GPT_PARAMS = dict(
     max_tokens=128,
     top_p=1,
     frequency_penalty=1,
-    presence_penalty=0.5,
+    presence_penalty=1,
 )
 
 
