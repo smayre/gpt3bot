@@ -4,8 +4,6 @@ import os
 from slack_bolt import App
 from gpt3wrapper import get_gpt3_completion
 from datetime import datetime as dt
-from functools import lru_cache
-import re
 
 
 STOP_TOKEN = "<EOT>"
@@ -22,18 +20,14 @@ app = App(
 
 @app.event("app_mention")
 def reply_to_mention(logger, client, event, say):
-    @lru_cache()
-    def get_username(userid):
-        resp = client.users_info(user=userid)
-        return resp["user"]["name"]
-
     try:
+        user_map = get_user_map(client)
         bot_username = client.users_identity()["user"]["name"]
 
         resp = client.conversations_history(
             channel=event["channel"], limit=MESSAGE_LIMIT, oldest=CUTOFF
         )
-        reply = generate_reply(resp["messages"], bot_username, get_username)
+        reply = generate_reply(resp["messages"], bot_username, user_map)
         say(reply)
     except Exception as e:
         logger.error(e)
@@ -49,7 +43,7 @@ def set_cutoff(ack, say):
 
 
 def generate_reply(
-    message_history, bot_username, get_username_func, stop_token=STOP_TOKEN
+    message_history, bot_username, user_map, stop_token=STOP_TOKEN
 ):
     """Create a prompt for GPT-3 by converting a Slack conversation
     history into a chat log. Append the STOP_TOKEN to the end of each
@@ -60,8 +54,8 @@ def generate_reply(
     messages = [
         (
             dt.fromtimestamp(float(msg["ts"])),
-            get_username_func(msg["user"]),
-            convert_mentions(msg["text"], get_username_func),
+            user_map[msg["user"]],
+            convert_mentions(msg["text"], user_map),
         )
         for msg in message_history
     ]
@@ -77,16 +71,20 @@ def generate_reply(
     return gpt3_reply
 
 
-def convert_mentions(text, get_username_func):
-    regex = re.compile(r"<@(U[0-9A-Z]+)>")
+def convert_mentions(text, usermap):
     res = text
-    while True:
-        match = regex.search(res)
-        if match:
-            username = get_username_func(match.group(1))
-            res = res[: match.start()] + f"@{username}" + res[match.end() :]
-        else:
-            break
+    for id, username in usermap.items():
+        at_str = f"<@{id}>"
+        while at_str in res:
+            i = res.index(at_str)
+            res = res[:i] + f"@{username}" + res[i + len(at_str) :]
+    return res
+
+
+def get_user_map(client):
+    resp = client.users_list()
+    members = ((u["id"], u["name"]) for u in resp["members"])
+    res = {id: name for id, name in members}
     return res
 
 
