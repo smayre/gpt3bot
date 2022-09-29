@@ -68,7 +68,7 @@ def generate_reply(
     chatlog.append(f"{now} {bot_username}:")
     prompt = "\n".join(chatlog)
     gpt3_reply = get_gpt3_completion(prompt, stop_token)
-    return gpt3_reply
+    return reconvert_mentions(gpt3_reply, user_map)
 
 
 def convert_mentions(text, usermap):
@@ -78,6 +78,16 @@ def convert_mentions(text, usermap):
         while at_str in res:
             i = res.index(at_str)
             res = res[:i] + f"@{username}" + res[i + len(at_str) :]
+    return res
+
+
+def reconvert_mentions(text, usermap):
+    res = text
+    for id, username in usermap.items():
+        at_str = f"@{username}"
+        while at_str in res:
+            i = res.index(at_str)
+            res = res[:i] + f"<@{id}>" + res[i + len(at_str) :]
     return res
 
 
