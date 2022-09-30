@@ -4,6 +4,7 @@ import os
 from slack_bolt import App
 from gpt3wrapper import get_gpt3_completion
 from datetime import datetime as dt
+import re
 
 
 STOP_TOKEN = "<EOT>"
@@ -83,22 +84,15 @@ def generate_reply(
 
 
 def convert_mentions(text, usermap):
-    res = text
-    for id, username in usermap.items():
-        at_str = f"<@{id}>"
-        while at_str in res:
-            i = res.index(at_str)
-            res = res[:i] + f"@{username}" + res[i + len(at_str) :]
+    regex = re.compile(r"<@(U[A-Z0-9]+)>")
+    res = regex.sub(lambda m: f"@{usermap.get(m.group(1), m.group(0))}", text)
     return res
 
 
 def reconvert_mentions(text, usermap):
     res = text
-    for id, username in usermap.items():
-        at_str = f"@{username}"
-        while at_str in res:
-            i = res.index(at_str)
-            res = res[:i] + f"<@{id}>" + res[i + len(at_str) :]
+    for uid, uname in usermap.items():
+        res = re.sub(f"@{uname}", f"<@{uid}>", res)
     return res
 
 
