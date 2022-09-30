@@ -7,7 +7,7 @@ from datetime import datetime as dt
 
 
 STOP_TOKEN = "<EOT>"
-MESSAGE_LIMIT = 50
+MESSAGE_LIMIT = 10
 BOT_USERNAME = "gpt3bot"
 
 CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
