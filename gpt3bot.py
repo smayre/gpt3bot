@@ -68,6 +68,7 @@ def generate_reply(
             convert_mentions(msg["text"], user_map),
         )
         for msg in message_history
+        if float(msg["ts"]) > CUTOFF
     ]
     messages.sort(key=lambda m: m[0])
     chatlog = [
