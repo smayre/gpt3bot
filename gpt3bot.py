@@ -26,7 +26,7 @@ def reply_to_mention(logger, client, event, say):
         bot_username = BOT_USERNAME
 
         resp = client.conversations_history(
-            channel=event["channel"], limit=MESSAGE_LIMIT, oldest=CUTOFF
+            channel=event["channel"], limit=MESSAGE_LIMIT
         )
         reply = generate_reply(resp["messages"], bot_username, user_map)
         say(reply)
