@@ -2,7 +2,6 @@
 
 import os
 import openai
-import random
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
@@ -16,14 +15,15 @@ GPT_PARAMS = dict(
 )
 
 
-def get_gpt3_completion(prompt, stop_token):
+def get_gpt3_completion(prompt, stop_token, choices=1):
     response = openai.Completion.create(
         prompt=prompt,
         stop=[stop_token],
+        n=choices,
+        best_of=choices,
         **GPT_PARAMS,
     )
-    choice = random.choice(response["choices"])
-    return choice["text"]
+    return [choice["text"] for choice in response["choices"]]
 
 
 if __name__ == "__main__":

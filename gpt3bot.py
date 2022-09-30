@@ -79,7 +79,17 @@ def generate_reply(
     now = dt.now().strftime("%H:%M:%S")
     chatlog.append(f"{now} {bot_username}:")
     prompt = "\n".join(chatlog)
-    gpt3_reply = get_gpt3_completion(prompt, stop_token)
+    seen = get_seen(messages, user_map)
+    (gpt3_reply,) = get_gpt3_completion(prompt, stop_token)
+    if normalise(gpt3_reply, user_map) in seen:
+        gpt3_choices = get_gpt3_completion(prompt, stop_token, choices=5)
+        try:
+            gpt3_reply = next(
+                r for r in gpt3_choices if normalise(r, user_map) not in seen
+            )
+        except StopIteration:
+            pass
+
     return reconvert_mentions(gpt3_reply, user_map)
 
 
@@ -101,6 +111,17 @@ def get_user_map(client):
     members = ((u["id"], u["name"]) for u in resp["members"])
     res = {id: name for id, name in members}
     return res
+
+
+def get_seen(messages, usermap):
+    return set(normalise(text, usermap) for _, _, text in messages)
+
+
+def normalise(reply, usermap):
+    res = reply
+    for uname in usermap.values():
+        res = re.sub(f"@{uname}", "<@>", res)
+    return res.lower().strip()
 
 
 if __name__ == "__main__":
