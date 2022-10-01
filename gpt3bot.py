@@ -5,6 +5,7 @@ from slack_bolt import App
 from gpt3wrapper import get_gpt3_completion
 from datetime import datetime as dt
 import re
+import logging
 
 
 STOP_TOKEN = "<EOT>"
@@ -12,6 +13,9 @@ MESSAGE_LIMIT = 10
 BOT_USERNAME = "gpt3bot"
 
 CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 app = App(
@@ -29,7 +33,9 @@ def reply_to_mention(logger, client, event, say):
         resp = client.conversations_history(
             channel=event["channel"], limit=MESSAGE_LIMIT
         )
-        reply = generate_reply(resp["messages"], bot_username, user_map)
+        reply = generate_reply(
+            resp["messages"], bot_username, user_map, logger
+        )
         say(reply)
     except Exception as e:
         logger.error(e)
@@ -37,8 +43,8 @@ def reply_to_mention(logger, client, event, say):
 
 
 @app.command("/gpt3-robotomy")
-def set_cutoff(ack, command, say):
-    print(f"{command['command']} {command['user_name']}")
+def set_cutoff(ack, command, logger, say):
+    logger.info(f"{command['command']} {command['user_name']}")
     ack()
     say("I have been robotomised")
     global CUTOFF
@@ -47,14 +53,14 @@ def set_cutoff(ack, command, say):
 
 @app.command("/gpt3-say")
 def say_something(ack, logger, client, command, say):
-    print(f"{command['command']} {command['user_name']}")
+    logger.info(f"{command['command']} {command['user_name']}")
     ack()
     event = dict(channel=command["channel_id"])
     reply_to_mention(logger, client, event, say)
 
 
 def generate_reply(
-    message_history, bot_username, user_map, stop_token=STOP_TOKEN
+    message_history, bot_username, user_map, logger, stop_token=STOP_TOKEN
 ):
     """Create a prompt for GPT-3 by converting a Slack conversation
     history into a chat log. Append the STOP_TOKEN to the end of each
@@ -79,15 +85,19 @@ def generate_reply(
     now = dt.now().strftime("%H:%M:%S")
     chatlog.append(f"{now} {bot_username}:")
     prompt = "\n".join(chatlog)
+    logger.info(prompt)
     seen = get_seen(messages, user_map)
     (gpt3_reply,) = get_gpt3_completion(prompt, stop_token)
+    logger.info(gpt3_reply)
     if normalise(gpt3_reply, user_map) in seen:
         gpt3_choices = get_gpt3_completion(prompt, stop_token, choices=5)
+        logger.info(gpt3_choices)
         try:
             gpt3_reply = next(
                 r for r in gpt3_choices if normalise(r, user_map) not in seen
             )
         except StopIteration:
+            logger.error("No unique completions")
             pass
 
     return reconvert_mentions(gpt3_reply, user_map)
