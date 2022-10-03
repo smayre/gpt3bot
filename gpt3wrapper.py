@@ -24,7 +24,7 @@ GPT_PARAMS = dict(
 )
 
 
-def get_gpt3_completion(prompt, stop_token, choices=1):
+def get_gpt3_completion(prompt, stop_token):
     period_start = dt.now() - timedelta(hours=LIMIT_PERIOD)
     cost = get_cost(start=period_start.timestamp())
     model = RICH_MODEL if cost < COST_LIMIT else POOR_MODEL
@@ -32,8 +32,6 @@ def get_gpt3_completion(prompt, stop_token, choices=1):
         model=model,
         prompt=prompt,
         stop=[stop_token],
-        n=choices,
-        best_of=choices,
         **GPT_PARAMS,
     )
     try:
@@ -44,7 +42,8 @@ def get_gpt3_completion(prompt, stop_token, choices=1):
         )
     except BaseException:
         sys.exit(1)
-    return [choice["text"] for choice in response["choices"]]
+    (choice,) = response["choices"]
+    return choice["text"]
 
 
 if __name__ == "__main__":
