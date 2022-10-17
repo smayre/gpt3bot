@@ -65,7 +65,7 @@ else:
 
 if __name__ == "__main__":
     try:
-        hours = sys.argv[1]
+        hours = int(sys.argv[1])
     except IndexError:
         hours = 24
     start = (dt.now() - timedelta(hours=hours)).timestamp()
