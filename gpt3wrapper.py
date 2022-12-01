@@ -16,11 +16,11 @@ POOR_MODEL = "text-babbage-001"
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
 GPT_PARAMS = dict(
-    temperature=0.9,
-    max_tokens=128,
+    temperature=0.7,
+    max_tokens=256,
     top_p=1,
-    frequency_penalty=1,
-    presence_penalty=1.5,
+    frequency_penalty=0,
+    presence_penalty=0,
 )
 
 
