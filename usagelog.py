@@ -12,7 +12,7 @@ PRICING = {
     "text-ada-001": 0.0004,
     "text-babbage-001": 0.0005,
     "text-curie-001": 0.002,
-    "text-davinci-002": 0.02,
+    "text-davinci-003": 0.02,
 }
 
 

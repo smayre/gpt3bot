@@ -10,7 +10,7 @@ import sys
 COST_LIMIT = 0.10  # USD
 LIMIT_PERIOD = 4  # hours
 
-RICH_MODEL = "text-davinci-002"
+RICH_MODEL = "text-davinci-003"
 POOR_MODEL = "text-babbage-001"
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
