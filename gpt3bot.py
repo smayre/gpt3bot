@@ -9,7 +9,7 @@ import logging
 
 
 STOP_TOKEN = "<EOT>"
-MESSAGE_LIMIT = 10
+MESSAGE_LIMIT = 15
 BOT_USERNAME = "gpt3bot"
 
 CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
