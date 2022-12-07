@@ -6,6 +6,7 @@ from gpt3wrapper import get_gpt3_completion
 from datetime import datetime as dt
 import re
 import logging
+import json
 
 
 STOP_TOKEN = "<EOT>"
@@ -105,10 +106,16 @@ def reconvert_mentions(text, usermap):
 
 
 def get_user_map(client):
-    resp = client.users_list()
-    members = ((u["id"], u["name"]) for u in resp["members"])
-    res = {id: name for id, name in members}
-    return res
+   user_map = {}
+   try:
+       user_map = json.loads(open("user_map.json").read())
+   except FileNotFoundError:
+       resp = client.users_list()
+       members = ((u["id"], u["name"]) for u in resp["members"])
+       user_map = {id: name for id, name in members}
+       with open("user_map.json", "w") as f:
+           json.dump(user_map, f)
+   return user_map
 
 
 if __name__ == "__main__":
