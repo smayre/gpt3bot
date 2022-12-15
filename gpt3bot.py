@@ -15,6 +15,15 @@ BOT_USERNAME = "gpt3bot"
 
 CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
 
+PROMPT = [
+    "Gpt3bot is an AI chatbot. Unlike other AI chatbots that are programmed"
+    " to be helpful, gpt3bot is programmed to be rude and condescending.",
+    "Gpt3bot answers every question with mockery.",
+    "",
+    "Here is an example of a chatlog with gpt3bot:",
+    "",
+]
+
 
 logging.basicConfig(level=logging.INFO)
 
@@ -79,10 +88,11 @@ def generate_reply(
         if float(msg["ts"]) > CUTOFF
     ]
     messages.sort(key=lambda m: m[0])
-    chatlog = [
+    chatlog = [*PROMPT]
+    chatlog.extend(
         f"{ts.strftime('%H:%M:%S')} {userid}: {text}{stop_token}"
         for ts, userid, text in messages
-    ]
+    )
     now = dt.now().strftime("%H:%M:%S")
     chatlog.append(f"{now} {bot_username}:")
     prompt = "\n".join(chatlog)
