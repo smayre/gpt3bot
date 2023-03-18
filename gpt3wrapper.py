@@ -7,11 +7,11 @@ from datetime import timedelta
 from usagelog import log_usage, get_cost
 import sys
 
-COST_LIMIT = 0.10  # USD
-LIMIT_PERIOD = 4  # hours
+COST_LIMIT = 1.0  # USD
+LIMIT_PERIOD = 8  # hours
 
-RICH_MODEL = "text-davinci-003"
-POOR_MODEL = "text-babbage-001"
+RICH_MODEL = "gpt-4"
+POOR_MODEL = "gpt-3.5-turbo"
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 

@@ -13,6 +13,8 @@ PRICING = {
     "text-babbage-001": 0.0005,
     "text-curie-001": 0.002,
     "text-davinci-003": 0.02,
+    "gpt-3.5-turbo": 0.002,
+    "gpt-4": 0.06
 }
 
 

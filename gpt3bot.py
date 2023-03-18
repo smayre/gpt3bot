@@ -10,7 +10,7 @@ import json
 
 
 STOP_TOKEN = "<EOT>"
-MESSAGE_LIMIT = 15
+MESSAGE_LIMIT = 30
 BOT_USERNAME = "gpt3bot"
 
 CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
