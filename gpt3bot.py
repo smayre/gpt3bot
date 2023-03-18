@@ -15,13 +15,7 @@ BOT_USERNAME = "gpt3bot"
 
 CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
 
-PROMPT = [
-    "Gpt3bot is an AI chatbot. Its personality is best described as ",
-    "'manic pixie dream girl'. It uses cutsey language and makes excessive ",
-    "use of 'uWu' speak. ",
-    "Here is an example of a chatlog with gpt3bot:",
-    "",
-]
+PROMPT = []
 
 
 logging.basicConfig(level=logging.INFO)
