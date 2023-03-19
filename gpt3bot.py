@@ -62,9 +62,7 @@ def say_something(ack, logger, client, command, say):
     reply_to_mention(logger, client, event, say)
 
 
-def generate_reply(
-    message_history, bot_username, user_map, logger, stop_token=STOP_TOKEN
-):
+def generate_reply(message_history, bot_username, user_map, logger):
     """Create a prompt for GPT-3 by converting a Slack conversation
     history into a chat log. Append the STOP_TOKEN to the end of each
     message so that (hopefully) GPT-3 will do the same, which we then
@@ -81,16 +79,15 @@ def generate_reply(
         if float(msg["ts"]) > CUTOFF
     ]
     messages.sort(key=lambda m: m[0])
-    chatlog = [*PROMPT]
-    chatlog.extend(
-        f"{ts.strftime('%H:%M:%S')} {userid}: {text}{stop_token}"
+    chatlog = [
+        {
+            "role": "assistant" if userid == BOT_USERNAME else "user",
+            "content": f"{ts.strftime('%H:%M:%S')} {userid}: {text}",
+        }
         for ts, userid, text in messages
-    )
-    now = dt.now().strftime("%H:%M:%S")
-    chatlog.append(f"{now} {bot_username}:")
-    prompt = "\n".join(chatlog)
-    logger.info(prompt)
-    gpt3_reply = get_gpt3_completion(prompt, stop_token)
+    ]
+    logger.info(json.dumps(chatlog, indent=2))
+    gpt3_reply = get_gpt3_completion(chatlog)
     logger.info(gpt3_reply)
     return reconvert_mentions(gpt3_reply, user_map)
 
