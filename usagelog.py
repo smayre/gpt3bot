@@ -80,7 +80,7 @@ if __name__ == "__main__":
     start = (dt.now() - timedelta(hours=hours)).timestamp()
     conn = sqlite3.connect(USAGE_LOG)
     cursor = conn.execute(
-        "select * from costs where ts > ? order by 1", [start]
+        "select ts, model, cost from costs where ts > ? order by 1", [start]
     )
     for ts, model, cost in cursor:
         ts_str = dt.fromtimestamp(ts).strftime("%d-%b-%Y %H:%M:%S").upper()
