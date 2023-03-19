@@ -88,6 +88,7 @@ def generate_reply(message_history, bot_username, user_map, logger):
     ]
     logger.info(json.dumps(chatlog, indent=2))
     gpt3_reply = get_gpt3_completion(chatlog)
+    gpt3_reply = remove_message_prefix(gpt3_reply)
     logger.info(gpt3_reply)
     return reconvert_mentions(gpt3_reply, user_map)
 
@@ -116,6 +117,11 @@ def get_user_map(client):
         with open("user_map.json", "w") as f:
             json.dump(user_map, f)
     return user_map
+
+
+def remove_message_prefix(message):
+    res = re.sub(r"\d\d:\d\d:\d\d [^:]+: (.*)$", lambda m: m.group(1), message)
+    return res
 
 
 if __name__ == "__main__":
