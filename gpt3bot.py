@@ -81,11 +81,17 @@ def generate_reply(message_history, bot_username, user_map, logger):
     messages.sort(key=lambda m: m[0])
     chatlog = [
         {
+            "role": "system",
+            "content": "\n".join(PROMPT)
+        }
+    ]
+    chatlog.extend(
+        {
             "role": "assistant" if userid == BOT_USERNAME else "user",
             "content": f"{ts.strftime('%H:%M:%S')} {userid}: {text}",
         }
         for ts, userid, text in messages
-    ]
+    )
     logger.info(json.dumps(chatlog, indent=2))
     gpt3_reply = get_gpt3_completion(chatlog)
     gpt3_reply = remove_message_prefix(gpt3_reply)
