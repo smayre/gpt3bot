@@ -15,7 +15,7 @@ BOT_USERNAME = "gpt3bot"
 
 CUTOFF = dt(*dt.today().timetuple()[:3]).timestamp()
 
-PROMPT = []
+PROMPT = ["You are a naughty bot that likes to be spanked."]
 
 
 logging.basicConfig(level=logging.INFO)
